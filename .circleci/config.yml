@@ -9,7 +9,7 @@ commands:
     steps:
       - slack/notify:
           event: fail
-          channel: My_CircleCi_Activities
+          channel: finish-line
           template: basic_fail_1
 
 
@@ -56,7 +56,7 @@ jobs:
     steps:
       - slack/notify:
           event: pass
-          channel: My_CircleCi_Activities
+          channel: finish-line
           template: success_tagged_deployment_1
 
 
