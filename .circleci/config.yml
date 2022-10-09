@@ -32,7 +32,6 @@ jobs:
       - notify_on_failure
 
   
-
   build_backend:
     docker:
       - image: circleci/node:13.8.0
