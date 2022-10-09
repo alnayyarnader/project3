@@ -27,10 +27,10 @@ jobs:
       - save_cache:
           key: "frontend_npm_packages"
           paths:
-            - /src/node_modules 
+            - ~/frontend/src/node_modules 
       - restore_cache:
           keys:
-            - "backend_npm_packages"  
+            - "frontend_npm_packages"  
       - run: cd frontend ; npm run build   
       - notify_on_failure
 
@@ -47,7 +47,7 @@ jobs:
       - save_cache:
           key: "backend_npm_packages"
           paths:
-            - backend/src/node_modules
+            - ~/backend/src/node_modules
       - restore_cache:
           keys:
             - "backend_npm_packages"
