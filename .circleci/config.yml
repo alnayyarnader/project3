@@ -7,7 +7,7 @@ orbs:
 commands:
   notify_on_failure:
     steps:
-      - slack/notify
+      - slack/notify:
           event: fail
           channel: My_CircleCi_Activities
           template: basic_fail_1
