@@ -9,7 +9,7 @@ commands:
     steps:
       - slack/notify:
           event: fail
-          channel: 04-finish-line
+          channel: Nader Mohammed El Nayyar
           template: basic_fail_1
 
 
@@ -62,7 +62,7 @@ jobs:
     steps:
       - slack/notify:
           event: pass
-          channel: 04-finish-line
+          channel: Nader Mohammed El Nayyar
           template: success_tagged_deployment_1
 
 
