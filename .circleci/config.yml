@@ -1,7 +1,7 @@
-version: '2.1'
-orbs:
-  slack: circleci/slack@4.1
+version: 2.1
 
+orbs:
+  slack: circleci/slack@4.10.1
 
 jobs:
   build_frontend:
@@ -16,8 +16,7 @@ jobs:
       - save_cache:
           key: "frontend_npm_packages"
           paths:
-            - /src/node_modules  
-      - run: pwd 
+            - /src/node_modules   
       - run: cd frontend ; npm run build   
 
 
@@ -34,7 +33,6 @@ jobs:
           key: "backend_npm_packages"
           paths:
             - /src/node_modules
-      - run: pwd
       - run: cd backend ; npm run build 
 
 
