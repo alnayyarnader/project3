@@ -3,6 +3,17 @@ version: 2.1
 orbs:
   slack: circleci/slack@4.10.1
 
+
+commands:
+  notify_on_failure:
+    steps:
+      - slack/notify
+         event: fail
+         channel: My_CircleCi_Activities
+         template: basic_fail_1
+
+
+
 jobs:
   build_frontend:
     docker:
@@ -18,7 +29,9 @@ jobs:
           paths:
             - /src/node_modules   
       - run: cd frontend ; npm run build   
+      - notify_on_failure
 
+  
 
   build_backend:
     docker:
@@ -34,7 +47,18 @@ jobs:
           paths:
             - /src/node_modules
       - run: cd backend ; npm run build 
+      - notify_on_failure
 
+
+  #for congratulations (Y)
+  notify_on_success:
+    docker:
+      - image: cimg/base:stable
+    steps:
+      - slack/notify:
+          event: pass
+          channel: My_CircleCi_Activities
+          template: success_tagged_deployment_1
 
 
 workflows:
@@ -42,3 +66,9 @@ workflows:
     jobs:
       - build_frontend
       - build_backend
+
+      #for congratulations (Y)
+      - notify_on_success:
+          requires:
+            - build_frontend
+            - build_backend
