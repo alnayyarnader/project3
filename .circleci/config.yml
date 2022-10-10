@@ -24,12 +24,12 @@ jobs:
             cd frontend
             npm install
       - save_cache:
-          key: "frontend_npm.packages"
+          key: "frontend__npm_packages"
           paths:
             - /frontend/src/node_modules 
       - restore_cache:
           keys:
-            - "frontend_npm.packages"  
+            - "frontend__npm_packages"  
       - run: cd frontend ; npm run build   
       - notify_on_failure
 
@@ -44,12 +44,12 @@ jobs:
             cd backend
             npm install      
       - save_cache:
-          key: "backend_npm.packages"
+          key: "backend__npm_packages"
           paths:
             - /backend/src/node_modules
       - restore_cache:
           keys:
-            - "backend_npm.packages"
+            - "backend__npm_packages"
       - run: cd backend ; npm run build 
       - notify_on_failure
 
@@ -61,7 +61,7 @@ jobs:
       - checkout 
       - restore_cache:
           keys:
-            - "frontend_npm.packages"  
+            - "frontend__npm_packages"  
       - run: cd frontend ; npm run test  
       - notify_on_failure
 
@@ -73,7 +73,7 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - "backend_npm.packages"
+            - "backend__npm_packages"
       - run: cd backend ; npm run test 
       - notify_on_failure
 
