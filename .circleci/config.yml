@@ -21,16 +21,15 @@ jobs:
       - checkout
       - run:
           command: |
-            pwd
             cd frontend
-            npm i
+            npm install
       - save_cache:
-          key: "frontend_npm_packages"
+          key: "frontend_npm.packages"
           paths:
             - /home/circleci/project/frontend/src/node_modules 
       - restore_cache:
           keys:
-            - "frontend_npm_packages"  
+            - "frontend_npm.packages"  
       - run: cd frontend ; npm run build   
       - notify_on_failure
 
@@ -43,14 +42,14 @@ jobs:
       - run:
           command: |
             cd backend
-            npm i      
+            npm install      
       - save_cache:
-          key: "backend_npm_packages"
+          key: "backend_npm.packages"
           paths:
             - /home/circleci/project/backend/src/node_modules
       - restore_cache:
           keys:
-            - "backend_npm_packages"
+            - "backend_npm.packages"
       - run: cd backend ; npm run build 
       - notify_on_failure
 
@@ -62,7 +61,7 @@ jobs:
       - checkout 
       - restore_cache:
           keys:
-            - "frontend_npm_packages"  
+            - "frontend_npm.packages"  
       - run: cd frontend ; npm run test  
       - notify_on_failure
 
@@ -74,7 +73,7 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - "backend_npm_packages"
+            - "backend_npm.packages"
       - run: cd backend ; npm run test 
       - notify_on_failure
 
