@@ -9,7 +9,7 @@ commands:
     steps:
       - slack/notify:
           event: fail
-          channel: Nader Mohammed El Nayyar
+          channel: 04-finish-line
           template: basic_fail_1
 
 
@@ -27,7 +27,7 @@ jobs:
       - save_cache:
           key: "frontend_npm_packages"
           paths:
-            - ~/frontend/src/node_modules 
+            - /home/circleci/project/frontend/src/node_modules 
       - restore_cache:
           keys:
             - "frontend_npm_packages"  
@@ -47,7 +47,7 @@ jobs:
       - save_cache:
           key: "backend_npm_packages"
           paths:
-            - ~/backend/src/node_modules
+            - /home/circleci/project/backend/src/node_modules
       - restore_cache:
           keys:
             - "backend_npm_packages"
@@ -62,7 +62,7 @@ jobs:
     steps:
       - slack/notify:
           event: pass
-          channel: Nader Mohammed El Nayyar
+          channel: 04-finish-line
           template: success_tagged_deployment_1
 
 
