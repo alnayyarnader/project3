@@ -13,7 +13,6 @@ commands:
           template: basic_fail_1
 
 
-
 jobs:
   build_frontend:
     docker:
