@@ -30,7 +30,10 @@ jobs:
       - restore_cache:
           keys:
             - "frontend.npm.packages"  
-      - run: cd frontend ; npm run build   
+      - run:
+          command: |
+            cd frontend
+            npm run build   
       - notify_on_failure
 
   
@@ -50,7 +53,10 @@ jobs:
       - restore_cache:
           keys:
             - "backend.npm.packages"
-      - run: cd backend ; npm run build 
+      - run:
+          command: |
+            cd backend
+            npm run build 
       - notify_on_failure
 
 
@@ -62,7 +68,11 @@ jobs:
       - restore_cache:
           keys:
             - "frontend.npm.packages"  
-      - run: cd frontend ; npm install ; npm run test  
+      - run:
+          command: |
+            cd frontend
+            npm install
+            npm run test  
       - notify_on_failure
 
   
@@ -74,7 +84,11 @@ jobs:
       - restore_cache:
           keys:
             - "backend.npm.packages"
-      - run: cd backend ; npm install ; npm run test 
+      - run:
+          command: |
+            cd backend
+            npm install
+            npm run test 
       - notify_on_failure
 
   
