@@ -26,7 +26,7 @@ jobs:
       - save_cache:
           key: "frontend_npm.packages"
           paths:
-            - /home/circleci/project/frontend/src/node_modules 
+            - /frontend/src/node_modules 
       - restore_cache:
           keys:
             - "frontend_npm.packages"  
@@ -46,7 +46,7 @@ jobs:
       - save_cache:
           key: "backend_npm.packages"
           paths:
-            - /home/circleci/project/backend/src/node_modules
+            - /backend/src/node_modules
       - restore_cache:
           keys:
             - "backend_npm.packages"
