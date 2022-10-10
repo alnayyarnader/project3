@@ -1,0 +1,64 @@
+
+
+  test_frontend:
+    docker:
+      - image: circleci/node:13.8.0 
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - "frontend_npm_packages"    
+      - run: npm i
+      - run: npm run test
+
+
+  test_backend:
+    docker:
+      - image: circleci/node:13.8.0 
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - "backend_npm_packages"   
+      - run: npm i
+      - run: npm run test
+
+  analyze_frontend:
+    docker:
+      - image: circleci/node:13.8.0
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - "frontend_npm_packages"
+      - run: npm i
+      - run: npm audit --audit-level=critical
+
+  analyze_backend:
+    docker:
+      - image: circleci/node:13.8.0
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - "backend_npm_packages"
+      - run: npm i
+      - run: npm audit --audit-level=critical
+
+
+
+
+
+workflows:
+  my_workflow:
+    jobs:
+      - build_frontend
+      - build_backend
+      - test_frontend:
+          requires:
+            - build_frontend
+      - test_backend:
+          requires:
+            - build_backend
+            
+            
