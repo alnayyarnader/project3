@@ -21,6 +21,7 @@ jobs:
       - checkout
       - run:
           command: |
+            pwd
             cd frontend
             npm i
       - save_cache:
@@ -58,15 +59,7 @@ jobs:
     docker:
       - image: circleci/node:13.8.0
     steps:
-      - checkout
-      - run:
-          command: |
-            cd frontend
-            npm i
-      - save_cache:
-          key: "frontend_npm_packages"
-          paths:
-            - /home/circleci/project/frontend/src/node_modules 
+      - checkout 
       - restore_cache:
           keys:
             - "frontend_npm_packages"  
@@ -79,14 +72,6 @@ jobs:
       - image: circleci/node:13.8.0
     steps:
       - checkout
-      - run:
-          command: |
-            cd backend
-            npm i      
-      - save_cache:
-          key: "backend_npm_packages"
-          paths:
-            - /home/circleci/project/backend/src/node_modules
       - restore_cache:
           keys:
             - "backend_npm_packages"
