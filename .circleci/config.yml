@@ -12,125 +12,58 @@ commands:
           event: fail
           template: basic_fail_1
 
+   destroy_environment:
+     steps:
+       - run:
+          name: destroy environment
+          command: |
+            aws cloudformation delete-stack --stack-name myStack-${CIRCLE_WORKFLOW_ID:0:7}
 
 jobs:
-  build_frontend:
+
+  create_backend_infrastructure: 
     docker:
-      - image: circleci/node:13.8.0
+      - image: amazon/aws-cli
     steps:
       - checkout
       - run:
+          name: Install tar utility
           command: |
-            cd frontend
-            npm install
-      - save_cache:
-          key: "frontend.npm.packages"
-          paths:
-            - frontend/src/node_modules 
-      - restore_cache:
-          keys:
-            - "frontend.npm.packages"  
+            yum install -y tar gzip
       - run:
+          name: create backend infrastructure
           command: |
-            cd frontend
-            npm install
-            npm run build   
-      - notify_on_failure
+            aws cloudformation deploy \
+            --template-file .circleci/files/backend.yml \
+            --stack-name "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" \
+            --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"  \
+            --tags project=udapeople
 
   
-  build_backend:
+  create_frontend_infrastructure: 
     docker:
-      - image: circleci/node:13.8.0
+      - image: amazon/aws-cli
     steps:
       - checkout
       - run:
+          name: Install tar utility
           command: |
-            cd backend
-            npm install      
-      - save_cache:
-          key: "backend.npm.packages"
-          paths:
-            - backend/src/node_modules
-      - restore_cache:
-          keys:
-            - "backend.npm.packages"
+            yum install -y tar gzip
       - run:
+          name: create frontend infrastructure
           command: |
-            cd backend
-            npm install
-            npm run build 
-      - notify_on_failure
+            aws cloudformation deploy \
+            --template-file .circleci/files/frontend.yml \
+            --stack-name "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}" \
+            --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"  \
+            --tags project=udapeople
+          
+            aws ec2 describe-instances \
+            --query 'Reservations[*].Instances[*].PublicIpAddress' \
+            --output text >>.circleci/ansible/inventory.txt
 
 
-  test_frontend:
-    docker:
-      - image: circleci/node:13.8.0
-    steps:
-      - checkout 
-      - restore_cache:
-          keys:
-            - "frontend.npm.packages"  
-      - run:
-          command: |
-            cd frontend
-            npm install
-            npm run test  
-      - notify_on_failure
-
-  
-  test_backend:
-    docker:
-      - image: circleci/node:13.8.0
-    steps:
-      - checkout
-      - restore_cache:
-          keys:
-            - "backend.npm.packages"
-      - run:
-          command: |
-            cd backend
-            npm install
-            npm run test 
-      - notify_on_failure
-
-
-  scan_frontend:
-    docker:
-      - image: circleci/node:13.8.0
-    steps:
-      - checkout
-      - restore_cache:
-          keys:
-            - "frontend.npm.packages"
-      - run:
-          command: |
-            cd frontend
-            npm install
-            npm audit fix --audit-level=critical --force
-            npm audit fix --force
-            npm audit --audit-level=critical 
-      - notify_on_failure
-
-
-  scan_backend:
-    docker:
-      - image: circleci/node:13.8.0
-    steps:
-      - checkout
-      - restore_cache:
-          keys:
-            - "backend.npm.packages"
-      - run:
-          command: |
-            cd backend
-            npm install
-            npm audit fix --audit-level=critical --force
-            npm audit fix --force
-            npm audit --audit-level=critical        
-      - notify_on_failure
-
-
-  #for congratulations (Y)
+#for congratulations (Y)
   notify_on_success:
     docker:
       - image: cimg/base:stable
@@ -140,31 +73,10 @@ jobs:
           event: pass
           template: success_tagged_deploy_1
 
-
+# Sequential workflow
 workflows:
-  my_workflow:
+  # Name the workflow
+  myWorkflow:
     jobs:
-      - build_frontend
-      - build_backend
-      - test_frontend:
-          requires:
-            - build_frontend
-      - test_backend:
-          requires:
-            - build_backend
-      - scan_frontend:
-          requires:
-            - build_frontend
-      - scan_backend:
-          requires:
-            - build_backend
-
-      #for congratulations (Y)
-      - notify_on_success:
-          requires:
-            - build_frontend
-            - build_backend
-            - test_frontend
-            - test_backend
-            - scan_frontend
-            - scan_backend
+      - create_backend_infrastructure
+      - create_frontend_infrastructure
