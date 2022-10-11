@@ -89,39 +89,7 @@ jobs:
             npm run test 
       - notify_on_failure
 
-
-  scan_frontend:
-    docker:
-      - image: circleci/node:13.8.0
-    steps:
-      - checkout
-      - restore_cache:
-          keys:
-            - "frontend.npm.packages"
-      - run:
-          command: |
-            cd frontend
-            npm audit fix --audit-level=critical --force
-            npm audit --audit-level=critical 
-      - notify_on_failure
-
-
-  scan_backend:
-    docker:
-      - image: circleci/node:13.8.0
-    steps:
-      - checkout
-      - restore_cache:
-          keys:
-            - "backend.npm.packages"
-      - run:
-          command: |
-            cd backend
-            npm audit fix --audit-level=critical --force
-            npm audit --audit-level=critical 
-      - notify_on_failure
-
-
+  
   #for congratulations (Y)
   notify_on_success:
     docker:
@@ -144,12 +112,6 @@ workflows:
       - test_backend:
           requires:
             - build_backend
-      - scan_frontend:
-          requires:
-            - build_frontend
-      - scan_backend:
-          requires:
-            - build_backend
 
       #for congratulations (Y)
       - notify_on_success:
@@ -158,5 +120,3 @@ workflows:
             - build_backend
             - test_frontend
             - test_backend
-            - scan_frontend
-            - scan_backend
