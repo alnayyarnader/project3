@@ -22,7 +22,7 @@ jobs:
       - run:
           command: |
             cd frontend
-            npm i
+            npm install
       - save_cache:
           key: "frontend_npm_packages"
           paths:
@@ -30,7 +30,11 @@ jobs:
       - restore_cache:
           keys:
             - "frontend_npm_packages"  
-      - run: cd frontend ; npm run build   
+      - run:
+          command: |
+            cd frontend
+            npm install
+            npm run build   
       - notify_on_failure
 
   
@@ -42,7 +46,7 @@ jobs:
       - run:
           command: |
             cd backend
-            npm i      
+            npm install      
       - save_cache:
           key: "backend_npm_packages"
           paths:
@@ -50,7 +54,11 @@ jobs:
       - restore_cache:
           keys:
             - "backend_npm_packages"
-      - run: cd backend ; npm run build 
+      - run:
+          command: |
+            cd backend
+            npm install
+            npm run build 
       - notify_on_failure
 
 

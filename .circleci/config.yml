@@ -33,6 +33,7 @@ jobs:
       - run:
           command: |
             cd frontend
+            npm install
             npm run build   
       - notify_on_failure
 
@@ -56,6 +57,7 @@ jobs:
       - run:
           command: |
             cd backend
+            npm install
             npm run build 
       - notify_on_failure
 
@@ -71,6 +73,7 @@ jobs:
       - run:
           command: |
             cd frontend
+            npm install
             npm run test  
       - notify_on_failure
 
@@ -86,6 +89,7 @@ jobs:
       - run:
           command: |
             cd backend
+            npm install
             npm run test 
       - notify_on_failure
 
@@ -103,6 +107,7 @@ jobs:
             cd frontend
             npm install
             npm audit fix --audit-level=critical --force
+            npm audit fix --force
             npm audit --audit-level=critical 
       - notify_on_failure
 
@@ -119,7 +124,8 @@ jobs:
           command: |
             cd backend
             npm install
-            npm audit fix --audit-level=critical --force 
+            npm audit fix --audit-level=critical --force
+            npm audit fix --force 
             npm audit --audit-level=critical        
       - notify_on_failure
 
