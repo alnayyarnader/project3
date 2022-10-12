@@ -23,6 +23,7 @@ commands:
           when: on_fail
           command: |
             echo "Destroying environment: << parameters.workflow_id >>"
+            aws s3 rm "s3://udapeople-<< parameters.workflow_id >> --recursive
             aws cloudformation delete-stack --stack-name "udapeople-backend-<< parameters.workflow_id >>"
             aws cloudformation delete-stack --stack-name "udapeople-frontend-<< parameters.workflow_id >>"
 
@@ -183,6 +184,7 @@ jobs:
           paths:
             - project/.circleci/ansible/inventory.txt
       - destroy-environment
+          workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
      
 
   configure-infrastructure:
@@ -210,7 +212,8 @@ jobs:
           command: |
             cd .circleci/ansible
             ansible-playbook -i inventory.txt configure-server.yml
-      - destroy-environment      
+      - destroy-environment
+          workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}    
 
   run-migrations:
     docker:
@@ -269,7 +272,9 @@ jobs:
             aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
         
       - destroy-environment
+          workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
       - revert-migrations
+          workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
                     
   deploy-backend:
     docker:
@@ -309,7 +314,9 @@ jobs:
             ansible-playbook -i inventory.txt deploy-backend.yml          
       
       - destroy-environment
+          workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
       - revert-migrations
+          workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
   
 
   smoke-test:
@@ -360,7 +367,9 @@ jobs:
             fi
 
       - destroy-environment
-      - revert-migrations 
+          workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
+      - revert-migrations
+          workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
 
   cloudfront-update:
     docker:
@@ -381,7 +390,9 @@ jobs:
             --tags project=udapeople
       
       - destroy-environment
-      - revert-migrations 
+          workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
+      - revert-migrations
+          workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
 
   cleanup:
     docker:
