@@ -2,7 +2,7 @@ version: 2.1
 
 orbs:
   slack: circleci/slack@4.10.1
-  aws-cli: circleci/aws-cli@3.1
+  aws-cli: circleci/aws-cli@3.1.3
 
 commands:
   notify_on_failure:
@@ -18,6 +18,13 @@ commands:
       workflow_id:
         type: string      
     steps:
+      - aws-cli/install
+      - aws-cli/configure:
+          profile-name: circle-ci
+          aws-access-key-id: $AWS_ACCESS_KEY_ID
+          aws-secret-access-key: $AWS_SECRET_ACCESS_KEY
+          aws-region: $AWS_DEFAULT_REGION
+      - run: aws --version    
       - run:
           name: Destroy environments
           when: on_fail
