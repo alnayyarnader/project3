@@ -209,7 +209,7 @@ jobs:
             && apk --no-cache add unzip \
             && curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" \
             && unzip awscliv2.zip \
-            && ./aws/install 
+            && ./aws/install \
             && rm -Rf aws/ awscliv2.zip
             export ANSIBLE_HOST_KEY_CHECKING=False
       - run:
@@ -303,7 +303,7 @@ jobs:
             && apk --no-cache add unzip \
             && curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" \
             && unzip awscliv2.zip \
-            && ./aws/install 
+            && ./aws/install \
             && rm -Rf aws/ awscliv2.zip
             export ANSIBLE_HOST_KEY_CHECKING=False
       
@@ -346,7 +346,7 @@ jobs:
             && apk --no-cache add unzip \
             && curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" \
             && unzip awscliv2.zip \
-            && ./aws/install 
+            && ./aws/install \
             && rm -Rf aws/ awscliv2.zip
 
 
