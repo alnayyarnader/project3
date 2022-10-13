@@ -18,7 +18,7 @@ commands:
       workflow_id:
         type: string      
     steps:
-      - aws-cli/install
+#     - aws-cli/install
       - aws-cli/setup:
           profile-name: circle-ci
           aws-access-key-id: AWS_ACCESS_KEY_ID
