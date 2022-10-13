@@ -205,7 +205,7 @@ jobs:
             apk add openssh
             apk add --update ansible
             apk add gzip
-            apk add aws-cli
+            apk add --no-cache aws-cli
             export ANSIBLE_HOST_KEY_CHECKING=False
       - run:
           name: Configure server
@@ -294,7 +294,7 @@ jobs:
             apk add openssh
             apk add --update ansible
             apk add gzip
-            apk add aws-cli
+            apk add --no-cache aws-cli
             export ANSIBLE_HOST_KEY_CHECKING=False
       
       - restore_cache:
@@ -332,7 +332,7 @@ jobs:
             apk add openssh
             apk add curl
             apk add gzip
-            apk add aws-cli
+            apk add --no-cache aws-cli
       - run:
           name: Get backend url
           command: |
