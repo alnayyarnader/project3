@@ -22,7 +22,7 @@ commands:
           name: Destroy environments
           when: on_fail
           command: |
-            echo "Destroying environment: << parameters.workflow_id >>"
+            echo "Destroying environment:" << parameters.workflow_id >>
             aws s3 rm s3://udapeople-<< parameters.workflow_id >> --recursive
             aws cloudformation delete-stack --stack-name udapeople-backend-<< parameters.workflow_id >>
             aws cloudformation delete-stack --stack-name udapeople-frontend-<< parameters.workflow_id >>
@@ -196,7 +196,7 @@ jobs:
           fingerprints: ["3b:e0:b7:d5:64:e3:33:35:c8:36:ac:94:e8:6a:e6:2d"]
       - attach_workspace:
           at: ~/
-      - run: cat inventory.txt
+      - run: cat .circle/ansible/inventory.txt
       - run:
           name: Install dependencies
           command: |
