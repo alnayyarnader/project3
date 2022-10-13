@@ -2,7 +2,7 @@ version: 2.1
 
 orbs:
   slack: circleci/slack@4.10.1
-
+  aws-cli: circleci/aws-cli@3.1
 
 commands:
   notify_on_failure:
@@ -204,13 +204,12 @@ jobs:
             && apk upgrade \
             && apk --no-cache add openssh \
             && apk --no-cache add curl \
-            && apk --no-cache add gzip \
-            && apk --no-cache add zip \
             && apk --no-cache add unzip \
             && curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" \
             && unzip awscliv2.zip \
             && ./aws/install \
             && rm -Rf aws/ awscliv2.zip
+            apk add --update ansible
             export ANSIBLE_HOST_KEY_CHECKING=False
       - run:
           name: Configure server
@@ -298,13 +297,14 @@ jobs:
             && apk upgrade \
             && apk --no-cache add openssh \
             && apk --no-cache add curl \
+            && apk add --upgrade tar
             && apk --no-cache add gzip \
-            && apk --no-cache add zip \
             && apk --no-cache add unzip \
             && curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" \
             && unzip awscliv2.zip \
             && ./aws/install \
             && rm -Rf aws/ awscliv2.zip
+            apk add --update ansible
             export ANSIBLE_HOST_KEY_CHECKING=False
       
       - restore_cache:
@@ -339,11 +339,6 @@ jobs:
           command: |
             apk update \
             && apk upgrade \
-            && apk --no-cache add openssh \
-            && apk --no-cache add curl \
-            && apk --no-cache add gzip \
-            && apk --no-cache add zip \
-            && apk --no-cache add unzip \
             && curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" \
             && unzip awscliv2.zip \
             && ./aws/install \
@@ -442,8 +437,8 @@ jobs:
             if [[ "${STACKS[@]}" =~ "${OldWorkflowID}" ]]
             then
               aws s3 rm "s3://udapeople-${OldWorkflowID}" --recursive
-              aws cloudformation delete-stack --stack-name "udapeople-backend-${OldWorkflowID}"
-              aws cloudformation delete-stack --stack-name "udapeople-frontend-${OldWorkflowID}"
+              aws cloudformation delete-stack --stack-name udapeople-backend-${OldWorkflowID}
+              aws cloudformation delete-stack --stack-name udapeople-frontend-${OldWorkflowID}
             fi
             
 
