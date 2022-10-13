@@ -21,9 +21,9 @@ commands:
       - aws-cli/install
       - aws-cli/setup:
           profile-name: circle-ci
-          aws-access-key-id: $AWS_ACCESS_KEY_ID
-          aws-secret-access-key: $AWS_SECRET_ACCESS_KEY
-          aws-region: $AWS_DEFAULT_REGION
+          aws-access-key-id: AWS_ACCESS_KEY_ID
+          aws-secret-access-key: AWS_SECRET_ACCESS_KEY
+          aws-region: AWS_DEFAULT_REGION
       - run: aws --version    
       - run:
           name: Destroy environments
