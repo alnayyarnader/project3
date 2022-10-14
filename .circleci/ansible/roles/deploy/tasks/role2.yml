@@ -6,7 +6,7 @@
 
 
 - name: unarchive files of artifact.tar.gz to EC2 instance server
-  template:
+  unarchive:
     src: artifact.tar.gz
     dest: ~/backend-package
 
@@ -15,8 +15,10 @@
     cd ~/backend-package
     npm install
 
-- name: Starting the app
+- name: executing node app with PM2
   shell: |
+    cd ~/backend-package/dist
     pm2 stop default
+    pm2 start main.js
     pm2 start npm -- start
     echo 'service started'
