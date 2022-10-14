@@ -1,16 +1,22 @@
 ---
-- name: Copy files to EC2 instance server
-  template:
-    src: "artifact.tar.gz"
-    dest: "~/artifact.tar.gz"
+- name: "Create Backend app directory"
+  file: 
+    path: ~/backend-package
+    state: directory
 
-- name: Extracting artifact.tar.gz file
+
+- name: unarchive files of artifact.tar.gz to EC2 instance server
+  template:
+    src: artifact.tar.gz
+    dest: ~/backend-package
+
+- name: Installing Backend node packages
   shell: |
-    tar -xvzf ~/artifact.tar.gz
+    cd ~/backend-package
+    npm install
 
 - name: Starting the app
   shell: |
-    npm install
     pm2 stop default
     pm2 start npm -- start
     echo 'service started'
