@@ -330,7 +330,8 @@ jobs:
             npm install
             npm run build
       - run:
-          name: compress backend package to be transferred by ansible      
+          name: compress backend package to be transferred by ansible 
+          command: |     
             tar -C backend -czvf artifact.tar.gz .
             cp artifact.tar.gz ./.circleci/ansible/roles/deploy/files
             cd .circleci/ansible
