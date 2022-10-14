@@ -205,12 +205,7 @@ jobs:
             && apk upgrade \
             && apk add --update ansible \
             && apk add openssh \
-            && apk add curl \
-            && apk add --no-cache unzip \
-            && curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" \
-            && unzip awscliv2.zip \
-            && ./aws/install \
-            && rm -Rf aws/ awscliv2.zip
+            && apk add curl
             
       - run:
           name: Configure server
@@ -251,7 +246,21 @@ jobs:
       - attach_workspace:
           at: ~/
       - run:
-          name: Install dependencies
+          name: Install AWS-CLI
+          command: |
+            apk update
+            apk upgrade
+            apk add --no-cache \
+            python3 \
+            py3-pip \
+            && pip3 install --upgrade pip \
+            && pip3 install --no-cache-dir \
+            awscli \
+            && rm -rf /var/cache/apk/*
+            aws --version
+
+      - run:
+          name: Install dependencies (node,ansible,openssh,curl,tar,gzip)
           command: |
             apk update \
             && apk upgrade \
@@ -260,12 +269,7 @@ jobs:
             && apk add openssh \
             && apk add curl \
             && apk add --upgrade tar \
-            && apk add gzip \
-            && apk add --no-cache unzip \
-            && curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" \
-            && unzip awscliv2.zip \
-            && ./aws/install \
-            && rm -Rf aws/ awscliv2.zip
+            && apk add gzip
 
       - run:
           name: Get backend url
@@ -306,7 +310,7 @@ jobs:
         # You can get this ID in the section where you registered the SSH Key in circleci
           fingerprints: ["3b:e0:b7:d5:64:e3:33:35:c8:36:ac:94:e8:6a:e6:2d"]
       - run:
-          name: Install dependencies
+          name: Install dependencies (node,ansible,openssh,curl,tar,gzip)
           command: |
             apk update \
             && apk upgrade \
@@ -315,12 +319,7 @@ jobs:
             && apk add openssh \
             && apk add curl \
             && apk add --upgrade tar \
-            && apk add gzip \
-            && apk add --no-cache unzip \
-            && curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" \
-            && unzip awscliv2.zip \
-            && ./aws/install \
-            && rm -Rf aws/ awscliv2.zip
+            && apk add gzip 
                  
       - restore_cache:
           keys: [backend-build]
@@ -330,9 +329,10 @@ jobs:
             cd backend
             npm install
             npm run build
-            cd ..
+      - run:
+          name: compress backend package to be transferred by ansible      
             tar -C backend -czvf artifact.tar.gz .
-            mv artifact.tar.gz ./.circleci/ansible/roles/deploy/files
+            cp artifact.tar.gz ./.circleci/ansible/roles/deploy/files
             cd .circleci/ansible
             echo "Contents  of the inventory.txt file is -------"
             cat inventory.txt
@@ -353,13 +353,17 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            apk update \
-            && apk upgrade \
-            && apk add --no-cache unzip \
-            && curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" \
-            && unzip awscliv2.zip \
-            && ./aws/install \
-            && rm -Rf aws/ awscliv2.zip
+            apk update
+            apk upgrade
+            apk add curl
+            apk add --no-cache \
+            python3 \
+            py3-pip \
+            && pip3 install --upgrade pip \
+            && pip3 install --no-cache-dir \
+            awscli \
+            && rm -rf /var/cache/apk/*
+            aws --version
 
 
       - run:
