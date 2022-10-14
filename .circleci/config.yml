@@ -245,15 +245,28 @@ jobs:
      
   deploy-frontend:
     docker:
-      - image: amazon/aws-cli
+    - image: python:3.7-alpine3.11
     steps:
       - checkout
+      - attach_workspace:
+          at: ~/
       - run:
           name: Install dependencies
           command: |
-             yum update -y
-             yum install -y python3
-             yum install -y nodejs
+            apk update \
+            && apk upgrade \
+            && apk add nodejs npm \
+            && apk add --update ansible \
+            && apk add openssh \
+            && apk add curl \
+            && apk add --upgrade tar \
+            && apk add gzip \
+            && apk add --no-cache unzip \
+            && curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" \
+            && unzip awscliv2.zip \
+            && ./aws/install \
+            && rm -Rf aws/ awscliv2.zip
+
       - run:
           name: Get backend url
           command: |
