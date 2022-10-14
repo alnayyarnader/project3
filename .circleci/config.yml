@@ -206,7 +206,7 @@ jobs:
             && apk add --update ansible \
             && apk add openssh \
             && apk add curl \
-            && apk add unzip \
+            && apk add --no-cache unzip \
             && curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" \
             && unzip awscliv2.zip \
             && ./aws/install \
@@ -240,7 +240,7 @@ jobs:
           command: |
             if grep -q "has been executed successfully." ~/project/backend/migrations_dump.txt
             then
-              curl --insecure https://kvdb.io/JzCiczjbM8iVExvAe4swXv/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '1'
+              curl https://kvdb.io/JzCiczjbM8iVExvAe4swXv/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '1'
             fi      
      
   deploy-frontend:
@@ -259,6 +259,7 @@ jobs:
           name: Get backend url
           command: |
             export BACKEND_IP=$(aws ec2 describe-instances \
+			      --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" \
             --query 'Reservations[*].Instances[*].PublicIpAddress' \
             --output text)
             export API_URL="http://${BACKEND_IP}:3030"
@@ -297,18 +298,17 @@ jobs:
           command: |
             apk update \
             && apk upgrade \
-            && apk --no-cache add openssh \
-            && apk --no-cache add curl \
-            && apk add --upgrade tar
-            && apk --no-cache add gzip \
-            && apk --no-cache add unzip \
+            && apk add --update ansible \
+            && apk add openssh \
+            && apk add curl \
+            && apk add --upgrade tar \
+            && apk add gzip \
+            && apk add --no-cache unzip \
             && curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" \
             && unzip awscliv2.zip \
             && ./aws/install \
             && rm -Rf aws/ awscliv2.zip
-            apk add --update ansible
-            
-      
+                 
       - restore_cache:
           keys: [backend-build]
       - run:
@@ -342,6 +342,7 @@ jobs:
           command: |
             apk update \
             && apk upgrade \
+            && apk add --no-cache unzip \
             && curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" \
             && unzip awscliv2.zip \
             && ./aws/install \
@@ -352,6 +353,7 @@ jobs:
           name: Get backend url
           command: |
             export BACKEND_IP=$(aws ec2 describe-instances \
+			      --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" \
             --query 'Reservations[*].Instances[*].PublicIpAddress' \
             --output text)
             export API_URL="http://${BACKEND_IP}:3030"
@@ -469,13 +471,13 @@ workflows:
           requires: [build-backend]
       - scan-frontend:
           requires: [build-frontend]
-#      - deploy-infrastructure:
-#          requires: [test-frontend, test-backend, scan-frontend, scan-backend]
-#          filters:
-#            branches:
-#              only: [master]
-#      - configure-infrastructure:
-#          requires: [deploy-infrastructure]
+      - deploy-infrastructure:
+          requires: [test-frontend, test-backend, scan-frontend, scan-backend]
+          filters:
+            branches:
+              only: [master]
+      - configure-infrastructure:
+          requires: [deploy-infrastructure]
       - run-migrations:
           requires: [configure-infrastructure]
       - deploy-frontend:
