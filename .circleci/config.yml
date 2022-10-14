@@ -368,7 +368,7 @@ jobs:
 
 
       - run:
-          name: Get backend url
+          name: Backend Smoke Testing
           command: |
             export BACKEND_IP=$(aws ec2 describe-instances \
             --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" \
@@ -376,12 +376,8 @@ jobs:
             --output text)
 
             export API_URL=http://${BACKEND_IP}:3030
-            echo "API_URL = ${API_URL}"
-
-      - run:
-          name: Backend smoke test.
-          command: |
             echo "${API_URL}"
+            
             if curl "${API_URL}/api/status" | grep "ok"
             then
                 return 0
@@ -389,7 +385,7 @@ jobs:
                 return 1
             fi
       - run:
-          name: Frontend smoke test.
+          name: Frontend Smoke Testing
           command: |
             URL="http://udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3-website-us-east-1.amazonaws.com/#/employees"            
             echo ${URL} 
