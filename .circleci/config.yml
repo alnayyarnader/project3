@@ -12,7 +12,7 @@ commands:
           event: fail
           template: basic_fail_1
 
-  install-awscli:
+  install-awscli-alpine:
     description: install AWS-CLI on alpine images only
     steps:
       - run: 
@@ -215,38 +215,46 @@ jobs:
       - attach_workspace:
           at: ~/
       - run: cat .circleci/ansible/inventory.txt
-      - install-awscli
       - run:
-          name: Install dependencies (ansible,openssh,curl)
+          name: Install dependencies (ansible,openssh,curl,tar,gzip)
           command: |
             apk update \
             && apk upgrade \
             && apk add --update ansible \
             && apk add openssh \
-            && apk add curl
-            
+            && apk add curl \
+            && apk add --upgrade tar \
+            && apk add gzip
+      
+      - install-awscli-alpine       
+
       - run:
           name: Configure server
           command: |
             cd .circleci/ansible
             export ANSIBLE_HOST_KEY_CHECKING=False
             ansible-playbook -i inventory.txt configure-server.yml
+      
       - destroy-environment:
             workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}    
 
   run-migrations:
     docker:
-    - image: python:3.7-alpine3.11
+      - image: circleci/node:13.8.0
     steps:
       - checkout
-      - install-awscli  
-      - run:
-          name: Install dependencies (node,curl)
+      - run: 
+          name: Install dependencies
           command: |
-            apk update \
-            && apk upgrade \
-            && apk add nodejs npm \
-            && apk add curl
+            sudo apt update -y
+            sudo apt upgrade -y
+            sudo apt install unzip
+            sudo apt install curl
+            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+            unzip awscliv2.zip
+            sudo ./aws/install
+            rm -Rf aws/ awscliv2.zip
+            aws --version
       - restore_cache:
           keys: [backend-build]      
       - run:
@@ -282,8 +290,6 @@ jobs:
       - checkout
       - attach_workspace:
           at: ~/
-  
-      - install-awscli  
       - run:
           name: Install dependencies (node,ansible,openssh,curl,tar,gzip)
           command: |
@@ -295,7 +301,9 @@ jobs:
             && apk add curl \
             && apk add --upgrade tar \
             && apk add gzip
-
+      
+      - install-awscli-alpine 
+      
       - run:
           name: Get backend url
           command: |
@@ -337,7 +345,6 @@ jobs:
         # You can get this ID in the section where you registered the SSH Key in circleci
           fingerprints: ["3b:e0:b7:d5:64:e3:33:35:c8:36:ac:94:e8:6a:e6:2d"]
       
-      - install-awscli
       - run:
           name: Install dependencies (node,ansible,openssh,curl,tar,gzip)
           command: |
@@ -349,17 +356,19 @@ jobs:
             && apk add curl \
             && apk add --upgrade tar \
             && apk add gzip 
-                 
+      
+      - install-awscli-alpine          
+      
       - restore_cache:
           keys: [backend-build]
       - run:
           name: Deploy backend
           command: |
             cd backend
-            npm install
             npm run build
-            tar -C backend -czvf artifact.tar.gz .
+            tar -czf artifact.tar.gz dist/* package*
             cp artifact.tar.gz ~/project/.circleci/ansible/roles/deploy/files
+            ls -lahi ~/project/.circleci/ansible/roles/deploy/files
 
       - run:
           name: transfer artifact.tar.gz by ansible to EC2 backend instance
@@ -385,7 +394,18 @@ jobs:
     - image: python:3.7-alpine3.11 
     steps:
       - checkout
-      - install-awscli
+      - run:
+          name: Install dependencies (node,curl,tar,gzip)
+          command: |
+            apk update \
+            && apk upgrade \
+            && apk add nodejs npm \
+            && apk add curl \
+            && apk add --upgrade tar \
+            && apk add gzip
+
+      - install-awscli-alpine
+
       - run:
           name: Backend Smoke Testing
           command: |
@@ -419,6 +439,7 @@ jobs:
             workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
       - revert-migrations:
             workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
+
 
   cloudfront-update:
     docker:
