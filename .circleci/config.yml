@@ -15,19 +15,19 @@ commands:
   Install-AWSCLI:
     description: install AWS-CLI on alpine images only
     steps:
-      - run: install AWS-CLI on alpine images only
-        command: |
-          apk update
-          apk upgrade
-          apk add --no-cache \
-          python3 \
-          py3-pip \
-          && pip3 install --upgrade pip \
-          && pip3 install --no-cache-dir \
-          awscli \
-          && rm -rf /var/cache/apk/*
-          aws --version
-
+      - run: 
+          name: install AWS-CLI on alpine images only
+          command: |
+            apk update
+            apk upgrade
+            apk add --no-cache \
+            python3 \
+            py3-pip \
+            && pip3 install --upgrade pip \
+            && pip3 install --no-cache-dir \
+            awscli \
+            && rm -rf /var/cache/apk/*
+            aws --version
 
   destroy-environment:
     description: Destroy backend and frontend cloudformation stacks given a workflow ID.
