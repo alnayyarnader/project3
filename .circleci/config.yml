@@ -248,6 +248,10 @@ jobs:
           command: |
             sudo apt update -y
             sudo apt upgrade -y
+
+            curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash - &&\
+            sudo apt-get install -y nodejs
+
             sudo apt install unzip
             sudo apt install curl
             curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
