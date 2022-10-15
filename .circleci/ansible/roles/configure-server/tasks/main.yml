@@ -10,12 +10,19 @@
   apt:
     autoremove: yes
 
-- name: "install dependencies."
+- name: download node.js 13 from nodesource.com website
+  become: true
+  shell: |
+    curl -fsSL https://deb.nodesource.com/setup_13.x | sudo -E bash -
+
+
+- name: "install node.js 13"
   become: yes
   apt:
-    name: ["nodejs", "npm"]
+    name: ["nodejs"]
     state: latest
     update_cache: yes
+
 
 - name: "install pm2"
   become: yes
