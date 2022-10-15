@@ -257,7 +257,8 @@ jobs:
             npm run migrations > migrations_dump.txt
       
       - run: cat ~/project/backend/migrations_dump.txt
-      
+      - run: node --version 
+      - run: npm --version
       - run:
           name: Send migration results to a bucket at kvdb.io website
           command: |
