@@ -11,7 +11,24 @@ commands:
           channel: 04-finish-line
           event: fail
           template: basic_fail_1
-            
+
+  Install-AWSCLI:
+    description: install AWS-CLI on alpine images only
+    steps:
+      - run: install AWS-CLI on alpine images only
+        command: |
+          apk update
+          apk upgrade
+          apk add --no-cache \
+          python3 \
+          py3-pip \
+          && pip3 install --upgrade pip \
+          && pip3 install --no-cache-dir \
+          awscli \
+          && rm -rf /var/cache/apk/*
+          aws --version
+
+
   destroy-environment:
     description: Destroy backend and frontend cloudformation stacks given a workflow ID.
     parameters:
@@ -198,8 +215,9 @@ jobs:
       - attach_workspace:
           at: ~/
       - run: cat .circleci/ansible/inventory.txt
+      - Install-AWSCLI
       - run:
-          name: Install dependencies
+          name: Install dependencies (ansible,openssh,curl)
           command: |
             apk update \
             && apk upgrade \
@@ -223,6 +241,8 @@ jobs:
       - checkout
       - restore_cache:
           keys: [backend-build]
+      
+      - Install-AWSCLI
       - run:
           name: Run migrations
           command: |
@@ -253,20 +273,8 @@ jobs:
       - checkout
       - attach_workspace:
           at: ~/
-      - run:
-          name: Install AWS-CLI
-          command: |
-            apk update
-            apk upgrade
-            apk add --no-cache \
-            python3 \
-            py3-pip \
-            && pip3 install --upgrade pip \
-            && pip3 install --no-cache-dir \
-            awscli \
-            && rm -rf /var/cache/apk/*
-            aws --version
-
+  
+      - Install-AWSCLI  
       - run:
           name: Install dependencies (node,ansible,openssh,curl,tar,gzip)
           command: |
@@ -319,6 +327,8 @@ jobs:
       - add_ssh_keys:
         # You can get this ID in the section where you registered the SSH Key in circleci
           fingerprints: ["3b:e0:b7:d5:64:e3:33:35:c8:36:ac:94:e8:6a:e6:2d"]
+      
+      - Install-AWSCLI
       - run:
           name: Install dependencies (node,ansible,openssh,curl,tar,gzip)
           command: |
@@ -344,7 +354,11 @@ jobs:
 
       - run:
           name: transfer artifact.tar.gz by ansible to EC2 backend instance
-          command: |     
+          command: |
+            export TYPEORM_MIGRATIONS_DIR=./migrations
+            export TYPEORM_MIGRATIONS=./migrations/*.ts
+            export TYPEORM_ENTITIES=./modules/domain/**/*.entity(.ts,.js)
+
             cd .circleci/ansible
             echo "Contents  of the inventory.txt file is -------"
             cat inventory.txt
@@ -362,22 +376,7 @@ jobs:
     - image: python:3.7-alpine3.11 
     steps:
       - checkout
-      - run:
-          name: Install dependencies
-          command: |
-            apk update
-            apk upgrade
-            apk add curl
-            apk add --no-cache \
-            python3 \
-            py3-pip \
-            && pip3 install --upgrade pip \
-            && pip3 install --no-cache-dir \
-            awscli \
-            && rm -rf /var/cache/apk/*
-            aws --version
-
-
+      - Install-AWSCLI
       - run:
           name: Backend Smoke Testing
           command: |
@@ -470,7 +469,6 @@ jobs:
               aws cloudformation delete-stack --stack-name udapeople-frontend-${OldWorkflowID}
             fi
             
-
   #for congratulations (Y)
   notify_on_success:
     docker:
