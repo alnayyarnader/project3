@@ -12,7 +12,7 @@ commands:
           event: fail
           template: basic_fail_1
 
-  Install-AWSCLI:
+  install-awscli:
     description: install AWS-CLI on alpine images only
     steps:
       - run: 
@@ -215,7 +215,7 @@ jobs:
       - attach_workspace:
           at: ~/
       - run: cat .circleci/ansible/inventory.txt
-      - Install-AWSCLI
+      - install-awscli
       - run:
           name: Install dependencies (ansible,openssh,curl)
           command: |
@@ -242,7 +242,7 @@ jobs:
       - restore_cache:
           keys: [backend-build]
       
-      - Install-AWSCLI
+      - install-awscli
       - run:
           name: Run migrations
           command: |
@@ -274,7 +274,7 @@ jobs:
       - attach_workspace:
           at: ~/
   
-      - Install-AWSCLI  
+      - install-awscli  
       - run:
           name: Install dependencies (node,ansible,openssh,curl,tar,gzip)
           command: |
@@ -328,7 +328,7 @@ jobs:
         # You can get this ID in the section where you registered the SSH Key in circleci
           fingerprints: ["3b:e0:b7:d5:64:e3:33:35:c8:36:ac:94:e8:6a:e6:2d"]
       
-      - Install-AWSCLI
+      - install-awscli
       - run:
           name: Install dependencies (node,ansible,openssh,curl,tar,gzip)
           command: |
@@ -376,7 +376,7 @@ jobs:
     - image: python:3.7-alpine3.11 
     steps:
       - checkout
-      - Install-AWSCLI
+      - install-awscli
       - run:
           name: Backend Smoke Testing
           command: |
