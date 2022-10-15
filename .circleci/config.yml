@@ -237,7 +237,12 @@ jobs:
             then
               curl --insecure https://kvdb.io/JzCiczjbM8iVExvAe4swXv/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '1'
             fi      
-     
+      - run: cat ~/project/backend/migrations_dump.txt
+      - destroy-environment:
+            workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
+      - revert-migrations:
+            workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
+
   deploy-frontend:
     docker:
     - image: python:3.7-alpine3.11
