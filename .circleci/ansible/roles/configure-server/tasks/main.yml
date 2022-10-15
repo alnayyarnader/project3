@@ -1,13 +1,9 @@
 ---
-- name: "update apt packages."
-  become: yes
-  apt:
-    update_cache: yes
-
-- name: "upgrade packages"
-  become: yes
+- name: Update and upgrade apt packages
+  become: true
   apt:
     upgrade: yes
+    update_cache: yes
 
 - name: remove dependencies that are no longer required
   become: yes
