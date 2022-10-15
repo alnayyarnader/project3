@@ -236,28 +236,19 @@ jobs:
 
   run-migrations:
     docker:
-      - image: circleci/node:13.8.0
+    - image: python:3.7-alpine3.11
     steps:
       - checkout
-      - restore_cache:
-          keys: [backend-build]
-      
+      - install-awscli  
       - run:
-          name: install awscli on node images
+          name: Install dependencies (node,ansible,openssh,curl,tar,gzip)
           command: |
-            apt-get update && \
-            apt-get install -y \
-            unzip \
-            curl \
-            && apt-get clean \
-            && curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" \
-            && unzip awscliv2.zip \
-            && ./aws/install \
-            && rm -rf \
-            awscliv2.zip \
-            && apt-get -y purge curl \
-            && apt-get -y purge unzip 
-            
+            apk update \
+            && apk upgrade \
+            && apk add nodejs npm \
+            && apk add curl
+      - restore_cache:
+          keys: [backend-build]      
       - run:
           name: Run migrations
           command: |
