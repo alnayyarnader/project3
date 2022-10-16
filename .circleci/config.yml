@@ -249,8 +249,6 @@ jobs:
       - checkout
       - install-awscli 
       - install-nodejs
-      - restore_cache:
-          keys: [backend-build]
       - run:
           name: Run migrations
           command: |
@@ -339,7 +337,7 @@ jobs:
           name: Install dependencies
           command: |
             cd backend
-            npm run install
+            npm install
       - run:
           name: Deploy backend
           command: |
