@@ -247,7 +247,6 @@ jobs:
       - image: cimg/node:13.8.0
     steps:
       - checkout
-      - install-ansible
       - install-awscli 
       - install-nodejs
       - restore_cache:
