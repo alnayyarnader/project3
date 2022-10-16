@@ -5,10 +5,12 @@
     state: directory
 
 
-- name: unarchive files of artifact.tar.gz to EC2 instance server
+- name : unarchive files of artifact.tar.gz to EC2 instance server
   unarchive:
     src: artifact.tar.gz
     dest: ~/backend-package
+    mode: 0755
+   
 
 - name: Installing Backend node packages
   shell: |

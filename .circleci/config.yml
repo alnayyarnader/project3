@@ -27,7 +27,7 @@ commands:
   install-awscli:
     steps:
       - run:
-          name: install awscli + unzip
+          name: install awscli v2 + unzip
           command: |
             sudo apt-get install -y unzip
             curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
@@ -249,9 +249,14 @@ jobs:
       - checkout
       - install-awscli 
       - install-nodejs
+      - restore_cache:
+          keys: [backend-build]
       - run:
           name: Run migrations
           command: |
+            export TYPEORM_ENTITIES=./src/modules/domain/**/*.entity{.ts,.js}
+            export TYPEORM_MIGRATIONS=./src/migrations/*.ts
+            export TYPEORM_MIGRATIONS_DIR=./src/migrations
             cd backend
             npm install
             npm run migrations > migrations_dump.txt
