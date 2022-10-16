@@ -2,7 +2,6 @@ version: 2.1
 
 orbs:
   slack: circleci/slack@4.10.1
-  aws-cli: circleci/aws-cli@3.1.3
 
 commands:
   notify_on_failure:
@@ -11,23 +10,40 @@ commands:
           channel: 04-finish-line
           event: fail
           template: basic_fail_1
-
-  install-awscli-alpine:
-    description: install AWS-CLI on alpine images only
+  
+  install-ansible:
     steps:
-      - run: 
-          name: install AWS-CLI on alpine images only
+      - run:
+          name: install ansible + openssh-client + curl + tar
           command: |
-            apk update
-            apk upgrade
-            apk add --no-cache \
-            python3 \
-            py3-pip \
-            && pip3 install --upgrade pip \
-            && pip3 install --no-cache-dir \
-            awscli \
-            && rm -rf /var/cache/apk/*
-            aws --version
+            sudo apt update
+            sudo apt-get install -y tar
+            sudo apt-get install -y curl
+            sudo apt-get install -y openssh-client
+            curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
+            python3 get-pip.py --user
+            python3 -m pip -V
+            python3 -m pip install --user ansible
+
+  install-awscli:
+    steps:
+      - run:
+          name: install awscli + unzip
+          command: |
+            sudo apt-get install -y unzip
+            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+            unzip awscliv2.zip
+            sudo ./aws/install
+
+  install-nodejs13.8:
+    steps:
+      - run:
+          name: Install Node.js LTS version as our base Node.js version using n version manager to use Node.js v13.8.0
+          command: |
+            curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
+            sudo apt-get install -y nodejs
+            sudo npm install -g n
+            sudo n 13.8.0
 
   destroy-environment:
     description: Destroy backend and frontend cloudformation stacks given a workflow ID.
@@ -207,7 +223,7 @@ jobs:
 
   configure-infrastructure:
     docker:
-      - image: python:3.7-alpine3.11
+      - image: cimg/python:3.10
     steps:
       - checkout
       - add_ssh_keys:
@@ -215,19 +231,8 @@ jobs:
       - attach_workspace:
           at: ~/
       - run: cat .circleci/ansible/inventory.txt
-      - run:
-          name: Install dependencies (ansible,openssh,curl,tar,gzip)
-          command: |
-            apk update \
-            && apk upgrade \
-            && apk add --update ansible \
-            && apk add openssh \
-            && apk add curl \
-            && apk add --upgrade tar \
-            && apk add gzip
-      
-      - install-awscli-alpine       
-
+      - install-ansible
+      - install-awscli      
       - run:
           name: Configure server
           command: |
@@ -240,25 +245,12 @@ jobs:
 
   run-migrations:
     docker:
-      - image: cimg/node:13.8.0
+      - image: cimg/python:3.10
     steps:
       - checkout
-      - run: 
-          name: Install dependencies (AWS-cli,curl,unzip)
-          command: |
-            sudo apt update -y
-            sudo apt upgrade -y
-
-            curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash - &&\
-            sudo apt-get install -y nodejs
-
-            sudo apt install unzip
-            sudo apt install curl
-            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-            unzip awscliv2.zip
-            sudo ./aws/install
-            rm -Rf aws/ awscliv2.zip
-            aws --version
+      - install-ansible
+      - install-awscli 
+      - install-nodejs13.8
       - restore_cache:
           keys: [backend-build]
       - run:
@@ -290,25 +282,15 @@ jobs:
 
   deploy-frontend:
     docker:
-    - image: python:3.7-alpine3.11
+      - image: cimg/python:3.10
     steps:
       - checkout
       - attach_workspace:
           at: ~/
-      - run:
-          name: Install dependencies (node,ansible,openssh,curl,tar,gzip)
-          command: |
-            apk update \
-            && apk upgrade \
-            && apk add nodejs npm \
-            && apk add --update ansible \
-            && apk add openssh \
-            && apk add curl \
-            && apk add --upgrade tar \
-            && apk add gzip
-      
-      - install-awscli-alpine 
-      
+      - install-ansible
+      - install-awscli 
+      - install-nodejs13.8
+     
       - run:
           name: Get backend url
           command: |
@@ -341,28 +323,17 @@ jobs:
                     
   deploy-backend:
     docker:
-    - image: python:3.7-alpine3.11
+      - image: cimg/python:3.10
     steps:
       - checkout
       - attach_workspace:
           at: ~/
+      - install-ansible
+      - install-awscli 
+      - install-nodejs13.8
       - add_ssh_keys:
         # You can get this ID in the section where you registered the SSH Key in circleci
-          fingerprints: ["3b:e0:b7:d5:64:e3:33:35:c8:36:ac:94:e8:6a:e6:2d"]
-      
-      - run:
-          name: Install dependencies (node,ansible,openssh,curl,tar,gzip)
-          command: |
-            apk update \
-            && apk upgrade \
-            && apk add nodejs npm \
-            && apk add --update ansible \
-            && apk add openssh \
-            && apk add curl \
-            && apk add --upgrade tar \
-            && apk add gzip 
-      
-      - install-awscli-alpine          
+          fingerprints: ["3b:e0:b7:d5:64:e3:33:35:c8:36:ac:94:e8:6a:e6:2d"]        
       
       - restore_cache:
           keys: [backend-build]
@@ -396,20 +367,12 @@ jobs:
 
   smoke-test:
     docker:
-    - image: python:3.7-alpine3.11 
+      - image: cimg/python:3.10
     steps:
       - checkout
-      - run:
-          name: Install dependencies (node,curl,tar,gzip)
-          command: |
-            apk update \
-            && apk upgrade \
-            && apk add nodejs npm \
-            && apk add curl \
-            && apk add --upgrade tar \
-            && apk add gzip
-
-      - install-awscli-alpine
+      - install-ansible
+      - install-awscli 
+      - install-nodejs13.8
 
       - run:
           name: Backend Smoke Testing
@@ -444,7 +407,6 @@ jobs:
             workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
       - revert-migrations:
             workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
-
 
   cloudfront-update:
     docker:
