@@ -84,7 +84,7 @@ jobs:
 
   build-frontend:
     docker:
-      - image: circleci/node:13.8.0
+      - image: cimg/node:13.8.0
     steps:
       - checkout
       - restore_cache:
@@ -101,7 +101,7 @@ jobs:
 
   build-backend:
     docker:
-      - image: circleci/node:13.8.0
+      - image: cimg/node:13.8.0
     steps:
       - checkout
       - restore_cache:
@@ -118,7 +118,7 @@ jobs:
 
   test-frontend:
     docker:
-      - image: circleci/node:13.8.0
+      - image: cimg/node:13.8.0
     steps:
       - checkout 
       - restore_cache:
@@ -132,7 +132,7 @@ jobs:
                 
   test-backend:
     docker:
-      - image: circleci/node:13.8.0
+      - image: cimg/node:13.8.0
     steps:
       - checkout
       - restore_cache:
@@ -146,7 +146,7 @@ jobs:
             
   scan-frontend:
     docker:
-      - image: circleci/node:13.8.0
+      - image: cimg/node:13.8.0
     steps:
       - checkout
       - restore_cache:
@@ -163,7 +163,7 @@ jobs:
 
   scan-backend:
     docker:
-      - image: circleci/node:13.8.0
+      - image: cimg/node:13.8.0
     steps:
       - checkout
       - restore_cache:
@@ -247,10 +247,8 @@ jobs:
       - image: cimg/python:3.10
     steps:
       - checkout
-      - install-awscli 
       - install-nodejs
-      - restore_cache:
-          keys: [backend-build]
+      - install-awscli 
       - run:
           name: Run migrations
           command: |
@@ -351,6 +349,7 @@ jobs:
             tar -czf artifact.tar.gz dist/* package*
             cd ..
             cp backend/artifact.tar.gz .circleci/ansible/roles/deploy/files && echo "copied to files (Y)"
+            ls -lahi .circleci/ansible/roles/deploy/files
       
       - run:
           name: transfer artifact.tar.gz by ansible to EC2 backend instance
