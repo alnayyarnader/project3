@@ -35,7 +35,7 @@ commands:
             unzip awscliv2.zip
             sudo ./aws/install
 
-  install-nodejs13.8:
+  install-nodejs:
     steps:
       - run:
           name: Install Node.js LTS version as our base Node.js version using n version manager to use Node.js v13.8.0
@@ -250,7 +250,7 @@ jobs:
       - checkout
       - install-ansible
       - install-awscli 
-      - install-nodejs13.8
+      - install-nodejs
       - restore_cache:
           keys: [backend-build]
       - run:
@@ -289,7 +289,7 @@ jobs:
           at: ~/
       - install-ansible
       - install-awscli 
-      - install-nodejs13.8
+      - install-nodejs
      
       - run:
           name: Get backend url
@@ -330,7 +330,7 @@ jobs:
           at: ~/
       - install-ansible
       - install-awscli 
-      - install-nodejs13.8
+      - install-nodejs
       - add_ssh_keys:
         # You can get this ID in the section where you registered the SSH Key in circleci
           fingerprints: ["3b:e0:b7:d5:64:e3:33:35:c8:36:ac:94:e8:6a:e6:2d"]        
@@ -372,7 +372,7 @@ jobs:
       - checkout
       - install-ansible
       - install-awscli 
-      - install-nodejs13.8
+      - install-nodejs
 
       - run:
           name: Backend Smoke Testing
