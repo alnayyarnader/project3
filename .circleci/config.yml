@@ -347,9 +347,9 @@ jobs:
       - run:
           name: transfer artifact.tar.gz by ansible to EC2 backend instance
           command: |
-            export TYPEORM_MIGRATIONS_DIR=./migrations
-            export TYPEORM_MIGRATIONS=./migrations/*{.ts,.js}
-            export TYPEORM_ENTITIES=./modules/domain/**/*.entity{.ts,.js}
+            export TYPEORM_MIGRATIONS_DIR=./src/migrations
+            export TYPEORM_ENTITIES=./src/modules/domain/**/*.entity.ts
+            export TYPEORM_MIGRATIONS=./src/migrations/*.ts
 
             cd .circleci/ansible
             echo "Contents  of the inventory.txt file is -------"
