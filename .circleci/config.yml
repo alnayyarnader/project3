@@ -281,12 +281,18 @@ jobs:
       - image: cimg/python:3.10
     steps:
       - checkout
-      - attach_workspace:
-          at: ~/
-      - install-ansible
       - install-awscli 
       - install-nodejs
-     
+      - restore_cache:
+          keys: [frontend-build]
+      - attach_workspace:
+          at: ~/
+       - run:
+          name: Install dependencies
+          command: |
+            cd frontend
+            npm install
+
       - run:
           name: Get backend url
           command: |
@@ -301,13 +307,10 @@ jobs:
             echo API_URL="http://${BACKEND_IP}:3030" >> frontend/.env
             cat frontend/.env
       
-      - restore_cache:
-          keys: [frontend-build]
       - run:
           name: Deploy frontend objects
           command: |
             cd frontend
-            npm install
             npm run build
             tar -czvf artifact-${CIRCLE_WORKFLOW_ID:0:7}.tar.gz dist
             aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
@@ -322,26 +325,30 @@ jobs:
       - image: cimg/python:3.10
     steps:
       - checkout
-      - attach_workspace:
-          at: ~/
       - install-ansible
       - install-awscli 
       - install-nodejs
-      - add_ssh_keys:
-        # You can get this ID in the section where you registered the SSH Key in circleci
-          fingerprints: ["3b:e0:b7:d5:64:e3:33:35:c8:36:ac:94:e8:6a:e6:2d"]        
-      
       - restore_cache:
           keys: [backend-build]
+      - add_ssh_keys:
+          fingerprints: ["3b:e0:b7:d5:64:e3:33:35:c8:36:ac:94:e8:6a:e6:2d"]        
+      - attach_workspace:
+          at: ~/
+
+      - run:
+          name: Install dependencies
+          command: |
+            cd backend
+            npm run install
       - run:
           name: Deploy backend
           command: |
             cd backend
             npm run build
             tar -czf artifact.tar.gz dist/* package*
-            cp artifact.tar.gz ~/project/.circleci/ansible/roles/deploy/files
-            ls -lahi ~/project/.circleci/ansible/roles/deploy/files
-
+            cd ..
+            cp backend/artifact.tar.gz .circleci/ansible/roles/deploy/files && echo "copied to files (Y)"
+      
       - run:
           name: transfer artifact.tar.gz by ansible to EC2 backend instance
           command: |
