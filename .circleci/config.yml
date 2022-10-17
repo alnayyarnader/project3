@@ -216,8 +216,8 @@ jobs:
           root: ~/
           paths:
             - project/.circleci/ansible/inventory.txt
-      - destroy-environment:
-            workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
+      - destroy-environment
+      - notify_on_failure
      
 
   configure-infrastructure:
@@ -239,8 +239,8 @@ jobs:
             export ANSIBLE_HOST_KEY_CHECKING=False
             ansible-playbook -i inventory.txt configure-server.yml
       
-      - destroy-environment:
-            workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}    
+      - destroy-environment
+      - notify_on_failure  
 
   run-migrations:
     docker:
@@ -270,8 +270,8 @@ jobs:
                 
       - revert-migrations:
             workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
-      - destroy-environment:
-            workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
+      - destroy-environment
+      - notify_on_failure      
 
   deploy-frontend:
     docker:
@@ -313,11 +313,11 @@ jobs:
             tar -czvf artifact-${CIRCLE_WORKFLOW_ID:0:7}.tar.gz dist
             aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
         
-      - destroy-environment:
-            workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
+      - destroy-environment
       - revert-migrations:
             workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
-                    
+      - notify_on_failure
+
   deploy-backend:
     docker:
       - image: cimg/python:3.10
@@ -362,11 +362,10 @@ jobs:
             export ANSIBLE_HOST_KEY_CHECKING=False
             ansible-playbook -i inventory.txt deploy-backend.yml          
       
-      - destroy-environment:
-            workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
+      - destroy-environment
       - revert-migrations:
             workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
-  
+      - notify_on_failure  
 
   smoke-test:
     docker:
@@ -406,10 +405,10 @@ jobs:
               exit 1
             fi
 
-      - destroy-environment:
-            workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
+      - destroy-environment
       - revert-migrations:
             workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
+      - notify_on_failure
 
   cloudfront-update:
     docker:
@@ -439,10 +438,10 @@ jobs:
             --parameter-overrides WorkflowID=${CIRCLE_WORKFLOW_ID:0:7} \
             --tags project=udapeople
       
-      - destroy-environment:
-            workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
+      - destroy-environment
       - revert-migrations:
             workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
+      - notify_on_failure
 
   cleanup:
     docker:
@@ -463,13 +462,14 @@ jobs:
             
             echo "Stack names are ${STACKS[@]}"
             export OLD_WORKFLOW_ID=$(curl --insecure https://kvdb.io/${KVDB_BUCKET}/old_workflow_id)
-            echo "the detected workflow id from kvdb.io is $OLD_WORKFLOW_ID"
+            echo "the detected OLD workflow id from kvdb.io is $OLD_WORKFLOW_ID"
             
             if [[ "${STACKS[@]}" =~ "${OLD_WORKFLOW_ID}" ]]
             then
-              aws s3 rm s3://udapeople-${OldWorkflowID} --recursive
-              aws cloudformation delete-stack --stack-name udapeople-backend-${OldWorkflowID}
-              aws cloudformation delete-stack --stack-name udapeople-frontend-${OldWorkflowID}
+              aws s3 rm s3://udapeople-${OLD_WORKFLOW_ID} --recursive
+              aws s3 rb s3://udapeople-${OLD_WORKFLOW_ID} --force  
+              aws cloudformation delete-stack --stack-name udapeople-backend-${OLD_WORKFLOW_ID}
+              aws cloudformation delete-stack --stack-name udapeople-frontend-${OLD_WORKFLOW_ID}
             fi
             
   #for congratulations (Y)
@@ -515,3 +515,19 @@ workflows:
           requires: [smoke-test]
       - cleanup:
           requires: [cloudfront-update]
+      - notify_on_success:
+          requires:
+            - [build-frontend]
+            - [scan-frontend]
+            - [test-frontend]
+            - [build-backend]
+            - [scan-backend]
+            - [test-backend]
+            - [deploy-infrastructure]
+            - [configure-infrastructure]
+            - [run-migrations]
+            - [deploy-backend]
+            - [deploy-frontend]
+            - [smoke-test]
+            - [cloudfront-update]
+            - [cleanup]
