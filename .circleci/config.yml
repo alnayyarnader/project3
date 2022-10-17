@@ -252,9 +252,9 @@ jobs:
       - run:
           name: Run migrations
           command: |
-            export TYPEORM_ENTITIES=./src/modules/domain/**/*.entity{.ts,.js}
-            export TYPEORM_MIGRATIONS=./src/migrations/*.ts
             export TYPEORM_MIGRATIONS_DIR=./src/migrations
+            export TYPEORM_ENTITIES=./src/modules/domain/**/*.entity.ts
+            export TYPEORM_MIGRATIONS=./src/migrations/*.ts
             cd backend
             npm install
             npm run migrations > migrations_dump.txt
@@ -349,7 +349,8 @@ jobs:
             tar -czf artifact.tar.gz dist/* package*
             cd ..
             cp backend/artifact.tar.gz .circleci/ansible/roles/deploy/files && echo "copied to files (Y)"
-            ls -lahi .circleci/ansible/roles/deploy/files
+            cd .circleci/ansible/roles/deploy/files
+            ls -lcahS
       
       - run:
           name: transfer artifact.tar.gz by ansible to EC2 backend instance

@@ -4,13 +4,17 @@
     path: ~/backend-package
     state: directory
 
-
-- name : unarchive files of artifact.tar.gz to EC2 instance server
-  ansible.builtin.unarchive:
+- name: Copy file
+  copy:
     src: artifact.tar.gz
+    dest: ~/
+
+- name: Unarchive a file that is already on the remote machine
+  unarchive:
+    src: ~/artifact.tar.gz
     dest: ~/backend-package
-    remote_src: no
-   
+    remote_src: yes
+  
 
 - name: Installing Backend node packages
   shell: |
