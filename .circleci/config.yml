@@ -242,40 +242,35 @@ jobs:
       - destroy-environment:
             workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}    
 
-  run-migrations:
+run-migrations:
     docker:
-      - image: cimg/python:3.10
+      - image: circleci/node:13.8.0
     steps:
       - checkout
-      - install-nodejs
-      - install-awscli 
+      - install-awscli
       - run:
           name: Run migrations
           command: |
-            export TYPEORM_MIGRATIONS_DIR=./src/migrations
-            export TYPEORM_ENTITIES=./src/modules/domain/**/*.entity.ts
+            export TYPEORM_ENTITIES=./src/modules/domain/**/*.entity{.ts,.js}
             export TYPEORM_MIGRATIONS=./src/migrations/*.ts
+            export TYPEORM_MIGRATIONS_DIR=./src/migrations
             cd backend
             npm install
-            npm run migrations > migrations_dump.txt
-
-      - run: cat ~/project/backend/migrations_dump.txt
-      - run: node --version 
-      - run: npm --version
+            npm run migrations > migration.txt
+      
+      - run: cat migration.txt
       - run:
-          name: Send migration results to a bucket at kvdb.io website
+          name: Send migration results to kvdb
           command: |
-            if grep -q "has been executed successfully." ~/project/backend/migrations_dump.txt
+            if grep -q "has been executed successfully." ~/project/backend/migration.txt
             then
-              curl https://kvdb.io/JzCiczjbM8iVExvAe4swXv/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '1'
-              echo "sent to kvdb successfully"
-            fi      
-               
+              curl https://kvdb.io/${KVDB_BUCKET}/migration_${CIRCLE_WORKFLOW_ID:0:7} -d '1'
+            fi
+                
       - revert-migrations:
             workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
       - destroy-environment:
             workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
-
 
   deploy-frontend:
     docker:
@@ -346,18 +341,19 @@ jobs:
           command: |
             cd backend
             npm run build
-            tar -czf artifact.tar.gz dist/* package*
-            cd ..
-            cp backend/artifact.tar.gz .circleci/ansible/roles/deploy/files && echo "copied to files (Y)"
-            cd .circleci/ansible/roles/deploy/files
+            tar -czvf artifact.tar.gz dist/* package*
+            cp artifact.tar.gz ~/project/.circleci/ansible/roles/deploy/files && echo "copied to files (Y)"
+            ls -lcahS
+            cd ~/project/.circleci/ansible/roles/deploy/files
             ls -lcahS
       
       - run:
           name: transfer artifact.tar.gz by ansible to EC2 backend instance
           command: |
-            export TYPEORM_MIGRATIONS_DIR=./src/migrations
-            export TYPEORM_ENTITIES=./src/modules/domain/**/*.entity.ts
+
+            export TYPEORM_ENTITIES=./src/modules/domain/**/*.entity{.ts,.js}
             export TYPEORM_MIGRATIONS=./src/migrations/*.ts
+            export TYPEORM_MIGRATIONS_DIR=./src/migrations
 
             cd .circleci/ansible
             echo "Contents  of the inventory.txt file is -------"
