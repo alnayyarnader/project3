@@ -517,17 +517,18 @@ workflows:
           requires: [cloudfront-update]
       - notify_on_success:
           requires:
-            - [build-frontend]
-            - [scan-frontend]
-            - [test-frontend]
-            - [build-backend]
-            - [scan-backend]
-            - [test-backend]
-            - [deploy-infrastructure]
-            - [configure-infrastructure]
-            - [run-migrations]
-            - [deploy-backend]
-            - [deploy-frontend]
-            - [smoke-test]
-            - [cloudfront-update]
-            - [cleanup]
+            - build-frontend
+            - scan-frontend
+            - test-frontend
+            - build-backend
+            - scan-backend
+            - test-backend
+            - deploy-infrastructure
+            - configure-infrastructure
+            - run-migrations
+            - deploy-backend
+            - deploy-frontend
+            - smoke-test
+            - cloudfront-update
+            - cleanup
+
