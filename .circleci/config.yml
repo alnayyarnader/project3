@@ -252,8 +252,8 @@ jobs:
       - run:
           name: Run migrations
           command: |
+            export TYPEORM_ENTITIES=./modules/domain/**/*.entity{.ts,.js}
             export TYPEORM_MIGRATIONS_DIR=./src/migrations
-            export TYPEORM_ENTITIES=./src/modules/domain/**/*.entity.ts
             export TYPEORM_MIGRATIONS=./src/migrations/*.ts
             cd backend
             npm install
@@ -401,7 +401,7 @@ jobs:
             echo ${URL} 
             if curl -s ${URL} | grep "Welcome"
             then
-              exit 1
+              exit 0
             else
               exit 1
             fi
