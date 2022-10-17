@@ -345,7 +345,6 @@ jobs:
             npm run build
             tar -czvf artifact.tar.gz dist/* package*
             cp artifact.tar.gz ~/project/.circleci/ansible/roles/deploy/files && echo "copied to files (Y)"
-            ls -lcahS
             cd ~/project/.circleci/ansible/roles/deploy/files
             ls -lcahS
       
