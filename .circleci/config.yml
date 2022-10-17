@@ -257,6 +257,7 @@ jobs:
             export TYPEORM_MIGRATIONS=./src/migrations/*.ts
             cd backend
             npm install
+            npm run migration:revert
             npm run migrations > migration_result.txt
       
       - run: cat ~/project/backend/migration_result.txt

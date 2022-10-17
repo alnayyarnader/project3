@@ -4,16 +4,11 @@
     path: ~/backend-package
     state: directory
 
-- name: Copy file
-  copy:
-    src: artifact.tar.gz
-    dest: ~/
 
-- name: Unarchive a file that is already on the remote machine
+- name: "Unarchive backend files from local to EC2 instance"
   unarchive:
-    src: ~/artifact.tar.gz
+    src: artifact.tar.gz
     dest: ~/backend-package
-    remote_src: yes
   
 
 - name: Installing Backend node packages
@@ -31,7 +26,7 @@
 
 - name: print message
   debug:
-    msg: "{{execute_node.stdout_line}}"
+    msg: "{{ execute_node.stdout_lines }}"
 
  
 - name: "Configure pm2 to start as service"
