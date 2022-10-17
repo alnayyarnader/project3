@@ -258,7 +258,7 @@ jobs:
             npm install
             npm run migrations > migration.txt
       
-      - run: cat migration.txt
+      - run: cat ~/project/backend/migration.txt
       - run:
           name: Send migration results to kvdb
           command: |
@@ -279,6 +279,7 @@ jobs:
       - checkout
       - install-awscli 
       - install-nodejs
+      - install-ansible
       - restore_cache:
           keys: [frontend-build]
       - attach_workspace:
