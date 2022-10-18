@@ -71,7 +71,7 @@ commands:
           name: Revert migrations
           when: on_fail
           command: |
-            SUCCESS=$(curl --insecure https://kvdb.io/JzCiczjbM8iVExvAe4swXv/migration_<< parameters.workflow_id >>)
+            SUCCESS=$(curl --insecure https://kvdb.io/${KVDB_BUCKET}/migration_<< parameters.workflow_id >>)
             if (( $SUCCESS == 1 ));
             then
                 cd ~/project/backend
@@ -257,6 +257,8 @@ jobs:
             export TYPEORM_MIGRATIONS=./src/migrations/*.ts
             cd backend
             npm install
+#this is to cleanup db for from older promotions            
+            npm run migrations:revert
             npm run migrations > migration_result.txt
       
       - run: cat ~/project/backend/migration_result.txt
