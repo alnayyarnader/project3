@@ -256,8 +256,7 @@ jobs:
             export TYPEORM_MIGRATIONS_DIR=./src/migrations
             export TYPEORM_MIGRATIONS=./src/migrations/*.ts
             cd backend
-            npm install
-#this is to cleanup db for from older promotions            
+            npm install            
             npm run migrations:revert
             npm run migrations > migration_result.txt
       
